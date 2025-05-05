@@ -1,0 +1,2183 @@
+﻿Next time, try stealing some originality too
+
+
+
+
+
+
+1. Implement Non-AI Techniques for the following problems: (TIC TAC TOE, N QUEENS, MAGIC SQUARE)
+
+
+
+
+
+
+TIC TAC TOE
+# Initialize the Board
+def initialize_board():
+    return [[' ' for _ in range(3)] for _ in range(3)]
+ 
+# Print the Board
+def print_board(board):
+    for row in board:
+        print("|".join(row))
+    print("-" * 5)
+ 
+# Check for Win
+def check_win(board, player):
+    for row in board:
+        if all(cell == player for cell in row):
+            return True
+    for col in range(3):
+        if all(board[row][col] == player for row in range(3)):
+            return True
+    if all(board[i][i] == player for i in range(3)) or all(board[i][2 - i] == player for i in range(3)):
+        return True
+    return False
+ 
+# Check for Draw
+def check_draw(board):
+    return all(cell != ' ' for row in board for cell in row)
+ 
+# Make Move
+def make_move(board, row, col, player):
+    if board[row][col] == ' ':
+        board[row][col] = player
+        return True
+    return False
+ 
+# Play the Game
+def play_tic_tac_toe():
+    board = initialize_board()
+    current_player = 'X'
+ 
+    print("Welcome to Tic Tac Toe!")
+    print_board(board)
+ 
+    while True:
+        print(f"Player {current_player}'s turn.")
+        try:
+            row, col = map(int, input("Enter row and column (0-2) separated by a space: ").split())
+            if 0 <= row <= 2 and 0 <= col <= 2:
+                if make_move(board, row, col, current_player):
+                    print_board(board)
+                    if check_win(board, current_player):
+                        print(f"Player {current_player} wins!")
+                        break
+                    elif check_draw(board):
+                        print("It's a draw!")
+                        break
+                    current_player = 'O' if current_player == 'X' else 'X'
+                else:
+                    print("That spot is already taken. Try again.")
+            else:
+                print("Invalid input. Enter row and column between 0 and 2.")
+        except ValueError:
+            print("Invalid input. Please enter two numbers separated by a space.")
+ 
+play_tic_tac_toe()
+
+
+N QUEENS
+def is_safe(board, row, col, n):
+    """Checks if placing a queen at (row, col) is safe."""
+    for i in range(row): # only checks the rows above current row
+        if board[i][col] == 1:
+            return False
+        if col - (row - i) >= 0 and board[i][col - (row - i)] == 1:
+            return False
+        if col + (row - i) < n and board[i][col + (row - i)] == 1:
+            return False
+    return True
+ 
+def print_board(board):
+    """Prints the board."""
+    print('\n'.join(' '.join('Q' if c else '.' for c in row) for row in board), '\n')
+ 
+def solve_n_queens(n):
+    """Solves N Queens with manual placements."""
+    board = [[0] * n for _ in range(n)]
+ 
+    while True:
+        try:
+            num_manual = int(input(f"Manual queens (0-{n}): "))
+            if 0 <= num_manual <= n:
+                break
+            print(f"Enter 0-{n}.")
+        except ValueError:
+            print("Invalid input.")
+ 
+    for i in range(num_manual):
+        while True:
+            try:
+                r, c = map(int, input(f"Queen {i+1} (row col): ").split())
+                if 0 <= r < n and 0 <= c < n:
+                    if board[r][c] or not is_safe(board, r, c, n):
+                        print("Unsafe/Occupied. Try again.")
+                        continue
+                    board[r][c] = 1
+                    print(f"Board ({i+1} placed):")
+                    print_board(board)
+                    break
+                print(f"Row/Col 0-{n-1}.")
+            except (ValueError, IndexError):
+                print("Invalid row col format.")
+ 
+    def solve_recursive(board, row):
+        if row == n:
+            return True
+        for col in range(n):
+            if is_safe(board, row, col, n):
+                temp = board[row][col]
+                board[row][col] = 1
+                if solve_recursive(board, row + 1):
+                    return True
+                board[row][col] = temp
+        return False
+ 
+    if solve_recursive(board, 0):
+        return board
+    return None
+ 
+while True:
+    try:
+        n = int(input("Board size (N): "))
+        if n > 0:
+            break
+        print("Positive integer please.")
+    except ValueError:
+        print("Invalid input.")
+ 
+solution = solve_n_queens(n)
+if solution:
+    print("Final Solution:")
+    print_board(solution)
+else:
+    print("No solution.")
+ 
+OUTPUT: BOARD SIZE = 4
+              MANUAL QUEENS = 4
+     (Q1 = 0 2), (Q2 = 1 0), (Q3 = 2 1), (Q4 = 3 1)
+ 
+
+
+ MAGIC SQUARE
+
+
+import random
+ 
+def generate_magic_square(n):
+    """
+    Generate an N x N magic square (N must be odd).
+    Returns the magic square if successful, None otherwise.
+    """
+    if n % 2 == 0:
+        return None
+ 
+    # Initialize the N x N grid with 0
+    magic_square = [[0 for _ in range(n)] for _ in range(n)]
+ 
+    # Randomize starting position
+    row = random.randint(0, n-1)
+    col = random.randint(0, n-1)
+ 
+    for num in range(1, n * n + 1):
+        magic_square[row][col] = num  # Place the current number
+ 
+        # Calculate the next position
+        next_row = (row - 1) % n  
+        next_col = (col + 1) % n  
+ 
+        if magic_square[next_row][next_col] != 0:
+            next_row = (row + 1) % n  
+            next_col = col  
+        # Update position
+        row, col = next_row, next_col
+ 
+    return magic_square
+ 
+def print_magic_square(square):
+    """Print the magic square in a formatted way"""
+    for row in square:
+        print(" ".join(f"{cell:2}" for cell in row))
+ 
+def main():
+    while True:
+        try:
+            # Get user input
+            n = input("Enter an odd size for the Magic Square (N) or 'q' to quit: ")
+           
+            # Check if user wants to quit
+            if n.lower() == 'q':
+                print("Goodbye!")
+                break
+           
+            # Convert input to integer
+            n = int(n)
+           
+            # Validate input
+            if n < 1:
+                print("Please enter a positive number.")
+                continue
+           
+            if n % 2 == 0:
+                print("Please enter an odd number.")
+                continue
+           
+            # Generate and print the magic square
+            magic_square = generate_magic_square(n)
+            if magic_square:
+                print(f"\nMagic Square for N={n}:")
+                print_magic_square(magic_square)
+            else:
+                print("Failed to generate magic square.")
+               
+        except ValueError:
+            print("Please enter a valid number.")
+ 
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+2. To solve the Water Jug problem using two uninformed search strategies: Depth First Search (DFS) and Breadth First Search (BFS). The Water Jug problem involves finding a sequence of actions to measure a specific quantity of water using two jugs of known capacities.
+
+
+ BFS:
+def bfs_water_jug(cap_a, cap_b, target):
+    from collections import deque
+
+
+    def is_valid(state):
+        return 0 <= state[0] <= cap_a and 0 <= state[1] <= cap_b
+
+
+    def next_states(state):
+        a, b = state
+        return [
+            (cap_a, b),  # Fill Jug A
+            (a, cap_b),  # Fill Jug B
+            (0, b),      # Empty Jug A
+            (a, 0),      # Empty Jug B
+            (a - min(a, cap_b - b), b + min(a, cap_b - b)),  # Pour A -> B
+            (a + min(b, cap_a - a), b - min(b, cap_a - a))   # Pour B -> A
+        ]
+
+
+    queue = deque([(0, 0)])
+    visited = set()
+
+
+    while queue:
+        current = queue.popleft()
+        if current in visited:
+            continue
+        visited.add(current)
+
+
+        a, b = current
+        print(f"Visiting state: {current}")
+
+
+        if a == target or b == target:
+            print(f"Solution found: {current}")
+            return
+
+
+        for state in next_states(current):
+            if is_valid(state) and state not in visited:
+                queue.append(state)
+
+
+    print("No solution found.")
+
+
+# Sample Input for BFS
+cap_a = int(input("Enter capacity of Jug A: "))
+cap_b = int(input("Enter capacity of Jug B: "))
+target = int(input("Enter target amount: "))
+bfs_water_jug(cap_a, cap_b, target)
+
+
+
+
+OUTPUT: ENTER CAPACITY OF JUG A: 5
+             ENTER CAPACITY OF JUG B: 4
+              ENTER TARGET AMOUNT: 3
+
+
+
+
+
+
+
+
+
+
+
+
+DFS:
+
+
+def dfs_water_jug(cap_a, cap_b, target):
+    from collections import deque
+ 
+    def is_valid(state):
+        return 0 <= state[0] <= cap_a and 0 <= state[1] <= cap_b
+ 
+    def next_states(state):
+        a, b = state
+        return [
+            (cap_a, b),  # Fill Jug A
+            (a, cap_b),  # Fill Jug B
+            (0, b),      # Empty Jug A
+            (a, 0),      # Empty Jug B
+            (a - min(a, cap_b - b), b + min(a, cap_b - b)),  # Pour A -> B
+            (a + min(b, cap_a - a), b - min(b, cap_a - a))   # Pour B -> A
+        ]
+ 
+    stack = deque([(0, 0)])
+    visited = set()
+ 
+    while stack:
+        current = stack.pop()
+        if current in visited:
+            continue
+        visited.add(current)
+ 
+        a, b = current
+        print(f"Visiting state: {current}")
+ 
+        if a == target or b == target:
+            print(f"Solution found: {current}")
+            return
+ 
+        for state in next_states(current):
+            if is_valid(state) and state not in visited:
+                stack.append(state)
+ 
+    print("No solution found.")
+ 
+# Sample Input for DFS
+cap_a = int(input("Enter capacity of Jug A: "))
+cap_b = int(input("Enter capacity of Jug B: "))
+target = int(input("Enter target amount: "))
+dfs_water_jug(cap_a, cap_b, target)
+
+
+
+
+
+
+OUTPUT: ENTER CAPACITY OF JUG A: 7
+             ENTER CAPACITY OF JUG B: 6
+              ENTER TARGET AMOUNT: 5
+
+
+
+
+3. Implement the Hill Climbing technique to solve the 8 puzzle problem
+
+
+import numpy as np
+
+
+class EightPuzzle:
+    def __init__(self, initial_state, goal_state):
+        self.initial_state = np.array(initial_state)
+        self.goal_state = np.array(goal_state)
+
+
+    def manhattan_distance(self, state):
+        distance = 0
+        for i in range(1, 9):
+            x1, y1 = np.where(state == i)
+            x2, y2 = np.where(self.goal_state == i)
+            distance += abs(x1[0] - x2[0]) + abs(y1[0] - y2[0])
+        return distance
+
+
+    def get_neighbors(self, state):
+        neighbors = []
+        x, y = np.where(state == 0)
+        x, y = int(x[0]), int(y[0])
+        moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+
+        for dx, dy in moves:
+            new_x, new_y = x + dx, y + dy
+            if 0 <= new_x < 3 and 0 <= new_y < 3:
+                new_state = state.copy()
+                new_state[x, y], new_state[new_x, new_y] = new_state[new_x, new_y], new_state[x, y]
+                neighbors.append(new_state)
+
+
+        return neighbors
+
+
+    def hill_climbing(self):
+        current_state = self.initial_state.copy()
+        current_heuristic = self.manhattan_distance(current_state)
+
+
+        print("\nInitial State:")
+        print(current_state, "\n")
+
+
+        steps = 0
+        while True:
+            neighbors = self.get_neighbors(current_state)
+            next_state = None
+            next_heuristic = current_heuristic
+
+
+            for neighbor in neighbors:
+                h = self.manhattan_distance(neighbor)
+                if h < next_heuristic:
+                    next_state = neighbor
+                    next_heuristic = h
+
+
+            if next_state is None or next_heuristic >= current_heuristic:
+                print("Final State (Local Minimum or Goal Reached):")
+                print(current_state, "\n")
+                return current_state
+
+
+            current_state = next_state
+            current_heuristic = next_heuristic
+            steps += 1
+
+
+            print(f"Step {steps}:")
+            print(current_state, "\n")
+
+
+# Function to get a 3x3 puzzle state from user
+def get_user_input(name):
+    print(f"Enter the {name} state (row by row, use 0 for blank):")
+    state = []
+    for i in range(3):
+        while True:
+            try:
+                row = list(map(int, input(f"Row {i + 1} (e.g., 1 2 3): ").strip().split()))
+                if len(row) != 3 or any(n < 0 or n > 8 for n in row):
+                    raise ValueError
+                state.append(row)
+                break
+            except ValueError:
+                print("Invalid input. Enter 3 integers between 0 and 8 (inclusive), separated by spaces.")
+    return state
+
+
+# Get user input
+initial_state = get_user_input("initial")
+goal_state = get_user_input("goal")
+
+
+# Run the puzzle
+puzzle = EightPuzzle(initial_state, goal_state)
+result = puzzle.hill_climbing()
+
+
+EXAMPLE OUTPUT 1:
+Enter the initial state (row by row, use 0 for blank):
+Row 1 (e.g., 1 2 3): 1 2 3
+Row 2 (e.g., 1 2 3): 4 0 6
+Row 3 (e.g., 1 2 3): 7 5 8
+Enter the goal state (row by row, use 0 for blank):
+Row 1 (e.g., 1 2 3): 1 2 3
+Row 2 (e.g., 1 2 3): 4 5 6
+Row 3 (e.g., 1 2 3): 7 8 0
+
+
+
+
+EXAMPLE OUTPUT 2:
+Enter the initial state (row by row, use 0 for blank):
+Row 1 (e.g., 1 2 3): 2 8 3
+Row 2 (e.g., 1 2 3): 1 6 4
+Row 3 (e.g., 1 2 3): 7 0 5
+Enter the goal state (row by row, use 0 for blank):
+Row 1 (e.g., 1 2 3): 1 2 3
+Row 2 (e.g., 1 2 3): 4 5 6
+Row 3 (e.g., 1 2 3): 7 8 0
+
+
+
+
+
+
+
+
+
+
+4.  Implement the Best First Search to solve the following problems:
+a) 8 puzzle
+b) Robot Navigation problem
+c) Cities Distance (shortest path) problem
+
+
+
+
+a) 8 puzzle
+
+
+import heapq
+import numpy as np
+
+
+class EightPuzzle:
+    def __init__(self, initial_state, goal_state):
+        self.initial_state = tuple(map(tuple, initial_state))
+        self.goal_state = tuple(map(tuple, goal_state))
+
+
+    def manhattan_distance(self, state):
+        distance = 0
+        state = np.array(state)
+        goal = np.array(self.goal_state)
+        for i in range(1, 9):
+            x1, y1 = np.where(state == i)
+            x2, y2 = np.where(goal == i)
+            distance += abs(x1[0] - x2[0]) + abs(y1[0] - y2[0])
+        return distance
+
+
+    def get_neighbors(self, state):
+        neighbors = []
+        state = np.array(state)
+        x, y = np.where(state == 0)
+        x, y = int(x[0]), int(y[0])
+        moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        for dx, dy in moves:
+            new_x, new_y = x + dx, y + dy
+            if 0 <= new_x < 3 and 0 <= new_y < 3:
+                new_state = state.copy()
+                new_state[x, y], new_state[new_x, new_y] = new_state[new_x, new_y], new_state[x, y]
+                neighbors.append(tuple(map(tuple, new_state)))
+        return neighbors
+
+
+    def best_first_search(self):
+        priority_queue = []
+        heapq.heappush(priority_queue, (self.manhattan_distance(self.initial_state), self.initial_state, []))
+        visited = set()
+        while priority_queue:
+            _, current_state, path = heapq.heappop(priority_queue)
+            if current_state in visited:
+                continue
+            visited.add(current_state)
+            if current_state == self.goal_state:
+                return path + [current_state]
+            for neighbor in self.get_neighbors(current_state):
+                if neighbor not in visited:
+                    heapq.heappush(priority_queue, (self.manhattan_distance(neighbor), neighbor, path + [current_state]))
+        return None
+
+
+def is_solvable(state):
+    flat_list = [num for row in state for num in row if num != 0]
+    inversions = 0
+    for i in range(len(flat_list)):
+        for j in range(i + 1, len(flat_list)):
+            if flat_list[i] > flat_list[j]:
+                inversions += 1
+    return inversions % 2 == 0
+
+
+# --- USER INPUT ---
+def get_state_input(name):
+    print(f"\nEnter the {name} state (use 0 for the blank):")
+    state = []
+    for i in range(3):
+        row = list(map(int, input(f"{name} Row {i+1}: ").strip().split()))
+        if len(row) != 3:
+            raise ValueError("Each row must have exactly 3 numbers.")
+        state.append(row)
+    return state
+
+
+# Collect input
+initial_state = get_state_input("Initial")
+goal_state = get_state_input("Goal")
+
+
+# Check solvability
+if not is_solvable(initial_state):
+    print("Initial state is not solvable.")
+else:
+    puzzle_solver = EightPuzzle(initial_state, goal_state)
+    solution = puzzle_solver.best_first_search()
+
+
+    if solution:
+        print("\n8-Puzzle Solution Path:")
+        for step, state in enumerate(solution):
+            print(f"Step {step}:")
+            print(np.array(state), "\n")
+    else:
+        print("No solution found.")
+
+
+
+
+EXAMPLE OUTPUT 1:
+Enter the Initial State (0 represents the blank):
+Enter row 1 (space-separated): 1 2 3
+Enter row 2 (space-separated): 4 0 6
+Enter row 3 (space-separated): 7 5 8
+Enter the Goal State:
+Enter row 1 (space-separated): 1 2 3
+Enter row 2 (space-separated): 4 5 6 
+Enter row 3 (space-separated): 7 8 0
+
+
+EXAMPLE OUTPUT 2:
+Enter the Initial State (0 represents the blank):
+Enter row 1 (space-separated): 1 2 3
+Enter row 2 (space-separated): 4 8 0
+Enter row 3 (space-separated): 7 6 5
+Enter the Goal State:
+Enter row 1 (space-separated): 1 2 3 
+Enter row 2 (space-separated): 4 5 6
+Enter row 3 (space-separated): 7 8 0
+
+
+
+
+
+
+
+
+b) Robot Navigation problem
+
+
+import heapq
+
+
+class RobotNavigation:
+    def __init__(self, grid, start, goal):
+        self.grid = grid
+        self.start = start
+        self.goal = goal
+
+
+    def manhattan_distance(self, pos):
+        return abs(pos[0] - self.goal[0]) + abs(pos[1] - self.goal[1])
+
+
+    def get_neighbors(self, pos):
+        moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
+        neighbors = []
+        for dx, dy in moves:
+            new_x, new_y = pos[0] + dx, pos[1] + dy
+            if 0 <= new_x < len(self.grid) and 0 <= new_y < len(self.grid[0]) and self.grid[new_x][new_y] == 0:
+                neighbors.append((new_x, new_y))
+        return neighbors
+
+
+    def best_first_search(self):
+        priority_queue = []
+        heapq.heappush(priority_queue, (self.manhattan_distance(self.start), self.start, []))
+        visited = set()
+
+
+        while priority_queue:
+            _, current_pos, path = heapq.heappop(priority_queue)
+
+
+            if current_pos in visited:
+                continue
+            visited.add(current_pos)
+
+
+            if current_pos == self.goal:
+                return path + [current_pos]
+
+
+            for neighbor in self.get_neighbors(current_pos):
+                if neighbor not in visited:
+                    heapq.heappush(priority_queue, (self.manhattan_distance(neighbor), neighbor, path + [current_pos]))
+
+
+        return None
+
+
+# ---- USER INPUT ----
+def get_input():
+    rows = int(input("Enter number of rows: "))
+    cols = int(input("Enter number of columns: "))
+    print("Enter the grid row by row (0=free, 1=obstacle):")
+    grid = []
+    for i in range(rows):
+        row = list(map(int, input(f"Row {i+1}: ").strip().split()))
+        if len(row) != cols:
+            raise ValueError("Each row must contain exactly {} values.".format(cols))
+        grid.append(row)
+
+
+    start = tuple(map(int, input("Enter start position (row col): ").strip().split()))
+    goal = tuple(map(int, input("Enter goal position (row col): ").strip().split()))
+    return grid, start, goal
+
+
+# Run with input
+grid, start, goal = get_input()
+robot_solver = RobotNavigation(grid, start, goal)
+robot_solution = robot_solver.best_first_search()
+
+
+# Output
+if robot_solution:
+    print("\n Robot Navigation Path (from start to goal):")
+    for step, pos in enumerate(robot_solution):
+        print(f"Step {step}: Move to {pos}")
+else:
+    print(" No path found!")
+
+
+
+
+EXAMPLE OUTPUT 1:
+Enter number of rows: 5
+Enter number of columns: 5
+Enter the grid row by row (0=free, 1=obstacle):
+Row 1: 0 0 0 1 0
+Row 2: 1 1 0 1 0
+Row 3: 0 0 0 0 0
+Row 4: 0 1 1 1 1
+Row 5: 0 0 0 0 0
+Enter start position (row col): 0 0
+Enter goal position (row col): 4 4
+
+
+
+
+EXAMPLE OUTPUT 2:
+Enter number of rows: 6
+Enter number of columns: 6
+Enter the grid row by row (0=free, 1=obstacle):
+Row 1: 0 0 1 0 0 0
+Row 2: 1 0 1 1 1 0
+Row 3: 0 0 0 0 1 0
+Row 4: 0 1 1 0 1 0
+Row 5: 0 1 0 0 0 0
+Row 6: 0 0 0 1 1 0
+Enter start position (row col): 0 0
+Enter goal position (row col): 5 5
+
+
+
+
+
+
+c) Cities Distance (shortest path) problem
+
+
+
+
+import heapq
+import networkx as nx
+import matplotlib.pyplot as plt
+
+
+class CitiesShortestPath:
+    def __init__(self, graph, start, goal, heuristic_distances):
+        self.graph = graph
+        self.start = start
+        self.goal = goal
+        self.heuristic = heuristic_distances
+
+
+    def best_first_search(self):
+        priority_queue = []
+        heapq.heappush(priority_queue, (self.heuristic[self.start], self.start, 0, []))
+        visited = set()
+
+
+        while priority_queue:
+            _, current_city, total_distance, path = heapq.heappop(priority_queue)
+
+
+            if current_city in visited:
+                continue
+            visited.add(current_city)
+
+
+            if current_city == self.goal:
+                return total_distance, path + [current_city]
+
+
+            for neighbor, distance in self.graph.get(current_city, []):
+                if neighbor not in visited:
+                    heapq.heappush(priority_queue, (self.heuristic[neighbor], neighbor, total_distance + distance, path + [current_city]))
+
+
+        return None
+
+
+def plot_graph(graph, shortest_path):
+    G = nx.DiGraph()
+    for city, neighbors in graph.items():
+        for neighbor, distance in neighbors:
+            G.add_edge(city, neighbor, weight=distance)
+
+
+    pos = nx.spring_layout(G)
+    plt.figure(figsize=(8, 6))
+    nx.draw(G, pos, with_labels=True, node_color='lightblue', edge_color='gray', node_size=2000, font_size=12, font_weight='bold')
+
+
+    edge_labels = {(city, neighbor): f"{distance}" for city, neighbors in graph.items() for neighbor, distance in neighbors}
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10, font_color='red')
+
+
+    if shortest_path:
+        path_edges = list(zip(shortest_path, shortest_path[1:]))
+        nx.draw_networkx_edges(G, pos, edgelist=path_edges, edge_color='blue', width=2.5)
+
+
+    plt.title("Cities Shortest Path Visualization")
+    plt.show()
+
+
+# ---- USER INPUT ----
+def get_city_input():
+    num_edges = int(input("Enter number of roads (edges): "))
+    graph = {}
+
+
+    print("Enter edges in format: Source Destination Distance")
+    for _ in range(num_edges):
+        src, dest, dist = input().strip().split()
+        dist = int(dist)
+        if src not in graph:
+            graph[src] = []
+        graph[src].append((dest, dist))
+
+
+    cities = set(graph.keys())
+    for neighbors in graph.values():
+        for dest, _ in neighbors:
+            cities.add(dest)
+
+
+    heuristic = {}
+    print("\nEnter heuristic values for each city:")
+    for city in sorted(cities):
+        h = int(input(f"Heuristic for {city}: "))
+        heuristic[city] = h
+
+
+    start = input("Enter start city: ").strip()
+    goal = input("Enter goal city: ").strip()
+
+
+    return graph, start, goal, heuristic
+
+
+# Run the program
+graph, start_city, goal_city, heuristic_distances = get_city_input()
+solver = CitiesShortestPath(graph, start_city, goal_city, heuristic_distances)
+solution = solver.best_first_search()
+
+
+if solution:
+    total_distance, path = solution
+    print("\nShortest Path from", start_city, "to", goal_city)
+    print(" -> ".join(path))
+    print("Total Distance:", total_distance)
+    plot_graph(graph, path)
+else:
+    print(" No path found!")
+
+
+
+
+EXAMPLE OUTPUT 1:
+Enter number of roads (edges): 6
+Enter edges in format: Source Destination Distance
+A B 4
+A C 2
+B D 5
+C D 8
+D E 2
+E F 3
+
+
+Enter heuristic values for each city:
+Heuristic for A: 10
+Heuristic for B: 8
+Heuristic for C: 6
+Heuristic for D: 4
+Heuristic for E: 2
+Heuristic for F: 0
+Enter start city: A
+Enter goal city: F
+
+
+Shortest Path from A to F
+A -> C -> D -> E -> F
+Total Distance: 15
+
+
+
+
+EXAMPLE OUTPUT 2:
+Enter number of roads (edges): 9
+Enter edges in format: Source Destination Distance
+A B 3
+A C 1
+B D 3
+C E 2
+D F 4
+E D 1
+E F 7
+F G 2
+G H 1
+
+
+Enter heuristic values for each city:
+Heuristic for A: 10 
+Heuristic for B: 8
+Heuristic for C: 9
+Heuristic for D: 5
+Heuristic for E: 6
+Heuristic for F: 3
+Heuristic for G: 1
+Heuristic for H: 0
+Enter start city: A
+Enter goal city: H
+
+
+Shortest Path from A to H
+A -> B -> D -> F -> G -> H
+Total Distance: 13
+
+
+
+
+
+
+
+
+
+
+5. Implement the A* algorithm to solve the following problems: 8 PUZZLE, ROBOT NAVIGATION, CITIES DISTANCE (shortest path)
+
+
+A] 8 puzzle
+import heapq
+from colorama import init, Fore, Style
+import time
+
+
+# Initialize colorama for colored output
+init()
+
+
+def print_puzzle(state):
+    """Print the puzzle in a 3x3 grid with colored tiles"""
+    print(f"{Style.BRIGHT}{Fore.CYAN}┌─────┬─────┬─────┐{Style.RESET_ALL}")
+    for i in range(0, 9, 3):
+        row = state[i:i+3]
+        formatted_row = [f"{Fore.YELLOW}{x}{Style.RESET_ALL}" if x != 0 else f"{Fore.RED}□{Style.RESET_ALL}" for x in row]
+        print(f"{Style.BRIGHT}{Fore.CYAN}│{Style.RESET_ALL} {formatted_row[0]} {Style.BRIGHT}{Fore.CYAN}│{Style.RESET_ALL} {formatted_row[1]} {Style.BRIGHT}{Fore.CYAN}│{Style.RESET_ALL} {formatted_row[2]} {Style.BRIGHT}{Fore.CYAN}│{Style.RESET_ALL}")
+        if i < 6:
+            print(f"{Style.BRIGHT}{Fore.CYAN}├─────┼─────┼─────┤{Style.RESET_ALL}")
+    print(f"{Style.BRIGHT}{Fore.CYAN}└─────┴─────┴─────┘{Style.RESET_ALL}")
+
+
+def astar(start, goal, heuristic, get_neighbors):
+    open_list = []
+    heapq.heappush(open_list, (0, start, None, 0))
+    closed_set = {}
+
+
+    while open_list:
+        f, state, parent, g = heapq.heappop(open_list)
+        if state in closed_set:
+            continue
+        closed_set[state] = (parent, g)
+        if state == goal:
+            path = []
+            while state:
+                path.append(state)
+                state = closed_set[state][0]
+            return path[::-1]
+        for neighbor, cost in get_neighbors(state):
+            if neighbor in closed_set:
+                continue
+            heapq.heappush(open_list, (g + cost + heuristic(neighbor, goal), neighbor, state, g + cost))
+    return None
+
+
+def misplaced_tiles(state, goal):
+    return sum(s != g and s != 0 for s, g in zip(state, goal))
+
+
+def get_8puzzle_neighbors(state):
+    neighbors = []
+    state = list(state)
+    zero_pos = state.index(0)
+    moves = {0: [1, 3], 1: [0, 2, 4], 2: [1, 5],
+             3: [0, 4, 6], 4: [1, 3, 5, 7], 5: [2, 4, 8],
+             6: [3, 7], 7: [4, 6, 8], 8: [5, 7]}
+    for move in moves[zero_pos]:
+        new_state = state[:]
+        new_state[zero_pos], new_state[move] = new_state[move], new_state[zero_pos]
+        neighbors.append((tuple(new_state), 1))
+    return neighbors
+
+
+def validate_state(state_str):
+    """Validate that the input string forms a valid 8-puzzle state"""
+    try:
+        state = tuple(map(int, state_str.split(',')))
+        if len(state) != 9:
+            return None, "State must contain exactly 9 numbers"
+        if set(state) != set(range(9)):
+            return None, "State must contain exactly one of each number 0-8"
+        return state, None
+    except ValueError:
+        return None, "Invalid input: Please enter 9 numbers (0-8) separated by commas"
+
+
+def main():
+    print(f"{Style.BRIGHT}{Fore.GREEN}=== 8-Puzzle Solver ==={Style.RESET_ALL}")
+    print(f"{Fore.CYAN}Enter 9 numbers (0-8), where 0 represents the empty space{Style.RESET_ALL}")
+   
+    # Get start state
+    start_str = input(f"{Fore.YELLOW}Enter start state (comma-separated, e.g., 1,2,3,4,5,6,7,8,0): {Style.RESET_ALL}")
+    start, error = validate_state(start_str)
+    if error:
+        print(f"{Fore.RED}Error: {error}{Style.RESET_ALL}")
+        return
+
+
+    # Get goal state
+    goal_str = input(f"{Fore.YELLOW}Enter goal state (comma-separated, e.g., 1,2,3,4,5,6,7,8,0): {Style.RESET_ALL}")
+    goal, error = validate_state(goal_str)
+    if error:
+        print(f"{Fore.RED}Error: {error}{Style.RESET_ALL}")
+        return
+
+
+    print(f"\n{Fore.MAGENTA}Initial State:{Style.RESET_ALL}")
+    print_puzzle(start)
+    print(f"\n{Fore.MAGENTA}Goal State:{Style.RESET_ALL}")
+    print_puzzle(goal)
+   
+    print(f"\n{Fore.GREEN}Solving...{Style.RESET_ALL}")
+    solution = astar(start, goal, misplaced_tiles, get_8puzzle_neighbors)
+   
+    if solution:
+        print(f"\n{Fore.GREEN}Solution found! Steps: {len(solution)-1}{Style.RESET_ALL}")
+        for i, state in enumerate(solution):
+            print(f"\n{Fore.CYAN}Step {i}: {Style.RESET_ALL}")
+            print_puzzle(state)
+            time.sleep(0.5)  # Add slight delay for visual effect
+    else:
+        print(f"\n{Fore.RED}No solution found!{Style.RESET_ALL}")
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+OUTPUT1:
+Enter the start state (comma-separated, 0 for empty space): 1,2,3,4,0,5,6,7,8
+Enter the goal state (comma-separated): 1,2,3,4,5,6,7,8,0
+
+
+OUTPUT2:
+Enter the start state (comma-separated, 0 for empty space): 1,2,3,4,5,6,7,8,0
+Enter the goal state (comma-separated): 1,2,3,4,0,5,6,7,8
+
+
+B] Robot Navigation problem
+import heapq
+
+
+def astar(start, goal, heuristic, get_neighbors):
+    open_list = []
+    heapq.heappush(open_list, (0, start, None, 0))
+    closed_set = {}
+
+
+    while open_list:
+        f, state, parent, g = heapq.heappop(open_list)
+        if state in closed_set:
+            continue
+        closed_set[state] = (parent, g)
+        if state == goal:
+            path = []
+            while state:
+                path.append(state)
+                state = closed_set[state][0]
+            return path[::-1]
+        for neighbor, cost in get_neighbors(state):
+            if neighbor in closed_set:
+                continue
+            heapq.heappush(open_list, (g + cost + heuristic(neighbor, goal), neighbor, state, g + cost))
+    return None
+
+
+def manhattan_distance(state, goal):
+    return abs(state[0] - goal[0]) + abs(state[1] - goal[1])
+
+
+def get_grid_neighbors(state, grid):
+    x, y = state
+    neighbors = []
+    moves = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+    for dx, dy in moves:
+        nx, ny = x + dx, y + dy
+        if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and grid[nx][ny] != 1:
+            neighbors.append(((nx, ny), 1))
+    return neighbors
+
+
+if __name__ == "__main__":
+    grid_size = int(input("Enter grid size (NxN): "))
+    grid = []
+    print("Enter the grid row-wise (0 for free, 1 for obstacle):")
+    for _ in range(grid_size):
+        grid.append(list(map(int, input().split())))
+    start = tuple(map(int, input("Enter start position (x, y): ").split(',')))
+    goal = tuple(map(int, input("Enter goal position (x, y): ").split(',')))
+    solution = astar(start, goal, manhattan_distance, lambda s: get_grid_neighbors(s, grid))
+    print("Robot Navigation Path:", solution)
+
+
+OUTPUT:
+Enter grid size (NxN): 4
+Enter the grid row-wise (0 for free, 1 for obstacle):
+0 1 0 0
+0 1 0 1
+0 0 0 1
+1 1 0 0
+Enter start position (x, y): 0,0
+Enter goal position (x, y): 3,3
+
+
+
+
+
+
+C] Cities Distance (shortest path) problem
+import heapq
+
+
+def astar(start, goal, heuristic, get_neighbors):
+    open_list = []
+    heapq.heappush(open_list, (0, start, None, 0))
+    closed_set = {}
+
+
+    while open_list:
+        f, state, parent, g = heapq.heappop(open_list)
+        if state in closed_set:
+            continue
+        closed_set[state] = (parent, g)
+        if state == goal:
+            path = []
+            while state:
+                path.append(state)
+                state = closed_set[state][0]
+            return path[::-1]
+        for neighbor, cost in get_neighbors(state):
+            if neighbor in closed_set:
+                continue
+            heapq.heappush(open_list, (g + cost + heuristic(neighbor, goal), neighbor, state, g + cost))
+    return None
+
+
+def heuristic_city(state, goal):
+    heuristic_values = {'A': 10, 'B': 8, 'C': 6, 'D': 4, 'E': 2, 'F': 0}
+    return heuristic_values.get(state, 0)
+
+
+def get_city_neighbors(state, city_graph):
+    return [(neighbor, cost) for neighbor, cost in city_graph[state].items()]
+
+
+if __name__ == "__main__":
+    num_cities = int(input("Enter number of cities: "))
+    city_graph = {}
+    print("Enter city connections (format: city1 city2 cost), type 'done' to finish:")
+    while True:
+        line = input()
+        if line == 'done':
+            break
+        city1, city2, cost = line.split()
+        cost = int(cost)
+        if city1 not in city_graph:
+            city_graph[city1] = {}
+        if city2 not in city_graph:
+            city_graph[city2] = {}
+        city_graph[city1][city2] = cost
+        city_graph[city2][city1] = cost
+
+
+    start = input("Enter start city: ")
+    goal = input("Enter goal city: ")
+    solution = astar(start, goal, heuristic_city, lambda s: get_city_neighbors(s, city_graph))
+    print("Cities Shortest Path:", solution)
+
+
+
+
+OUTPUT:
+Enter number of cities: 6
+Enter city connections (format: city1 city2 cost), type 'done' to finish:
+A B 2
+A C 4
+B D 7
+C D 1
+D E 3
+E F 5
+done
+Enter start city: A
+Enter goal city: F
+
+
+
+
+
+
+MENU DRIVEN (SINGLE CODE)
+import heapq
+
+
+def astar(start, goal, heuristic, get_neighbors):
+    open_list = []
+    heapq.heappush(open_list, (0, start, None, 0))  # (f, state, parent, g)
+    closed_set = {}
+
+
+    while open_list:
+        f, state, parent, g = heapq.heappop(open_list)
+
+
+        if state in closed_set:
+            continue
+
+
+        closed_set[state] = (parent, g)
+
+
+        if state == goal:
+            path = []
+            while state:
+                path.append(state)
+                state = closed_set[state][0]
+            return path[::-1]
+
+
+        for neighbor, cost in get_neighbors(state):
+            if neighbor in closed_set:
+                continue
+            heapq.heappush(open_list, (g + cost + heuristic(neighbor, goal), neighbor, state, g + cost))
+
+
+    return None
+
+
+# 8-Puzzle Heuristic
+def misplaced_tiles(state, goal):
+    return sum(s != g and s != 0 for s, g in zip(state, goal))
+
+
+# 8-Puzzle Neighbor Function
+def get_8puzzle_neighbors(state):
+    neighbors = []
+    state = list(state)
+    zero_pos = state.index(0)
+    moves = {0: [1, 3], 1: [0, 2, 4], 2: [1, 5],
+             3: [0, 4, 6], 4: [1, 3, 5, 7], 5: [2, 4, 8],
+             6: [3, 7], 7: [4, 6, 8], 8: [5, 7]}
+
+
+    for move in moves[zero_pos]:
+        new_state = state[:]
+        new_state[zero_pos], new_state[move] = new_state[move], new_state[zero_pos]
+        neighbors.append((tuple(new_state), 1))
+
+
+    return neighbors
+
+
+# Manhattan Distance for Robot Navigation
+def manhattan_distance(state, goal):
+    return abs(state[0] - goal[0]) + abs(state[1] - goal[1])
+
+
+# Grid Neighbor Function
+def get_grid_neighbors(state, grid):
+    x, y = state
+    neighbors = []
+    moves = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+
+    for dx, dy in moves:
+        nx, ny = x + dx, y + dy
+        if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and grid[nx][ny] != 1:
+            neighbors.append(((nx, ny), 1))
+
+
+    return neighbors
+
+
+# Cities Heuristic
+def heuristic_city(state, goal):
+    heuristic_values = {'A': 10, 'B': 8, 'C': 6, 'D': 4, 'E': 2, 'F': 0}
+    return heuristic_values.get(state, 0)
+
+
+# City Neighbor Function
+def get_city_neighbors(state, city_graph):
+    return [(neighbor, cost) for neighbor, cost in city_graph[state].items()]
+
+
+def main():
+    while True:
+        print("\nA* Algorithm Menu:")
+        print("1. Solve 8-Puzzle Problem")
+        print("2. Solve Robot Navigation Problem")
+        print("3. Solve Cities Distance (Shortest Path) Problem")
+        print("4. Exit")
+        choice = input("Enter your choice: ")
+
+
+        if choice == '1':
+            start = tuple(map(int, input("Enter the start state (comma-separated, 0 for empty space): ").split(',')))
+            goal = tuple(map(int, input("Enter the goal state (comma-separated): ").split(',')))
+            solution = astar(start, goal, misplaced_tiles, get_8puzzle_neighbors)
+            print("8-Puzzle Solution Path:", solution)
+
+
+        elif choice == '2':
+            grid_size = int(input("Enter grid size (NxN): "))
+            grid = []
+            print("Enter the grid row-wise (0 for free, 1 for obstacle):")
+            for _ in range(grid_size):
+                grid.append(list(map(int, input().split())))
+            start = tuple(map(int, input("Enter start position (x, y): ").split(',')))
+            goal = tuple(map(int, input("Enter goal position (x, y): ").split(',')))
+            solution = astar(start, goal, manhattan_distance, lambda s: get_grid_neighbors(s, grid))
+            print("Robot Navigation Path:", solution)
+
+
+        elif choice == '3':
+            num_cities = int(input("Enter number of cities: "))
+            city_graph = {}
+            print("Enter city connections (format: city1 city2 cost), type 'done' to finish:")
+            while True:
+                line = input()
+                if line == 'done':
+                    break
+                city1, city2, cost = line.split()
+                cost = int(cost)
+                if city1 not in city_graph:
+                    city_graph[city1] = {}
+                if city2 not in city_graph:
+                    city_graph[city2] = {}
+                city_graph[city1][city2] = cost
+                city_graph[city2][city1] = cost
+
+
+            start = input("Enter start city: ")
+            goal = input("Enter goal city: ")
+            solution = astar(start, goal, heuristic_city, lambda s: get_city_neighbors(s, city_graph))
+            print("Cities Shortest Path:", solution)
+
+
+        elif choice == '4':
+            print("Exiting the program...")
+            break
+        else:
+            print("Invalid choice. Please select a valid option.")
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+EXAMPLE OUTPUT:
+
+
+A* Algorithm Menu:
+1. Solve 8-Puzzle Problem
+2. Solve Robot Navigation Problem
+3. Solve Cities Distance (Shortest Path) Problem
+4. Exit
+Enter your choice: 1
+Enter the start state (comma-separated, 0 for empty space): 1,2,3,4,5,6,7,8,0
+Enter the goal state (comma-separated): 1,2,3,4,5,6,7,0,8
+8-Puzzle Solution Path: [(1, 2, 3, 4, 5, 6, 7, 8, 0), (1, 2, 3, 4, 5, 6, 7, 0, 8)]
+
+
+A* Algorithm Menu:
+1. Solve 8-Puzzle Problem
+2. Solve Robot Navigation Problem
+3. Solve Cities Distance (Shortest Path) Problem
+4. Exit
+Enter your choice: 2
+Enter grid size (NxN): 3
+Enter the grid row-wise (0 for free, 1 for obstacle):
+0 0 0
+1 0 1
+0 0 0
+Enter start position (x, y): 0,0
+Enter goal position (x, y): 2,2  
+Robot Navigation Path: [(0, 0), (0, 1), (1, 1), (2, 1), (2, 2)]        
+
+
+A* Algorithm Menu:
+1. Solve 8-Puzzle Problem
+2. Solve Robot Navigation Problem
+3. Solve Cities Distance (Shortest Path) Problem
+4. Exit
+Enter your choice: 3
+Enter number of cities: 4
+Enter city connections (format: city1 city2 cost), type 'done' to finish:
+A B 4
+A C 2
+B D 5
+C D 8
+D E 2
+E F 3
+done
+Enter start city: A
+Enter goal city: F
+Cities Shortest Path: ['A', 'B', 'D', 'E', 'F']
+
+
+
+
+
+
+6. Implement Constraint Satisfaction Algorithm for the following problems:
+A] Cryptarithmetic
+import itertools
+
+
+def solve_cryptarithmetic(words, result):
+    unique_chars = set("".join(words) + result)
+    if len(unique_chars) > 10:
+        print("Too many unique letters, cannot solve.")
+        return None
+    unique_chars = list(unique_chars)
+
+
+    for perm in itertools.permutations(range(10), len(unique_chars)):
+        mapping = dict(zip(unique_chars, perm))
+        if any(mapping[word[0]] == 0 for word in words + [result]):
+            continue
+        words_nums = [sum(mapping[char] * (10 ** i) for i, char in enumerate(word[::-1])) for word in words]
+        result_num = sum(mapping[char] * (10 ** i) for i, char in enumerate(result[::-1]))
+        if sum(words_nums) == result_num:
+            print("\nSolution Found!")
+            for char, num in mapping.items():
+                print(f"{char} = {num}")
+            return mapping
+    print("\nNo solution found.")
+    return None
+
+
+if __name__ == "__main__":
+    words = input("Enter words (comma-separated): ").split(",")
+    result = input("Enter result word: ")
+    solve_cryptarithmetic(words, result)
+
+
+OUTPUT:
+Enter words (comma-separated): SEND, MORE  
+Enter result word: MONEY
+
+
+
+
+
+
+B] MAP COLOURING
+import matplotlib.pyplot as plt
+import networkx as nx
+
+
+def solve_map_coloring(graph, colors):
+    color_map = {}
+    def is_valid(node, color):
+        return all(color_map.get(neigh) != color for neigh in graph[node])
+    def backtrack(node_index):
+        if node_index == len(graph):
+            return True
+        node = list(graph.keys())[node_index]
+        for color in colors:
+            if is_valid(node, color):
+                color_map[node] = color
+                if backtrack(node_index + 1):
+                    return True
+                del color_map[node]
+        return False
+    if backtrack(0):
+        return color_map
+    return None
+
+
+def draw_colored_map(graph, color_map):
+    G = nx.Graph()
+    for node in graph:
+        G.add_node(node)
+    for node, neighbors in graph.items():
+        for neighbor in neighbors:
+            G.add_edge(node, neighbor)
+
+
+    pos = nx.spring_layout(G)
+    node_colors = [color_map[node].strip().lower() for node in G.nodes()]
+
+
+    plt.figure(figsize=(6, 6))
+    nx.draw(G, pos,
+            node_color=node_colors,
+            with_labels=True,
+            node_size=1000,
+            font_size=12,
+            font_weight='bold')
+    plt.title("Map Coloring Solution")
+    plt.show()
+
+
+if __name__ == "__main__":
+    num_regions = int(input("Enter number of regions: "))
+    graph = {}
+    print("Enter adjacency list (format: region neighbors1 neighbors2 ...). Type 'done' to finish:")
+    while True:
+        line = input()
+        if line == "done":
+            break
+        parts = line.split()
+        graph[parts[0]] = parts[1:]
+    colors = input("Enter colors available (comma-separated): ").split(",")
+    solution = solve_map_coloring(graph, colors)
+    if solution:
+        print("\nMap Coloring Solution:")
+        for region, color in solution.items():
+            print(f"{region} -> {color}")
+        draw_colored_map(graph, solution)
+    else:
+        print("\nNo solution found.")
+
+
+
+
+OUTPUT:
+Enter number of regions: 4
+Enter adjacency list (format: region neighbors1 neighbors2 ...). Type 'done' to finish:
+A B C
+B A D
+C A D
+D B C
+done
+Enter colors available (comma-separated): Red,Green,Blue
+
+
+
+
+
+
+
+
+C] CROSSWORD PUZZLE
+def solve_crossword(grid_str, words):
+    grid = [list(row.strip()) for row in grid_str.split('\n') if row.strip()]
+    height, width = len(grid), len(grid[0]) if grid else 0
+
+
+    slots = []
+    for i in range(height):
+        j = 0
+        while j < width:
+            if grid[i][j] == '.':
+                start = j
+                while j < width and grid[i][j] == '.':
+                    j += 1
+                if j - start > 1:
+                    slots.append(('across', i, start, j - start))
+            else:
+                j += 1
+    for j in range(width):
+        i = 0
+        while i < height:
+            if grid[i][j] == '.':
+                start = i
+                while i < height and grid[i][j] == '.':
+                    i += 1
+                if i - start > 1:
+                    slots.append(('down', start, j, i - start))
+            else:
+                i += 1
+
+
+    def can_place(word, slot, current_grid):
+        direction, row, col, length = slot
+        if len(word) != length:
+            return False
+        if direction == 'across':
+            for k, char in enumerate(word):
+                if current_grid[row][col + k] not in ('.', char):
+                    return False
+        else:
+            for k, char in enumerate(word):
+                if current_grid[row + k][col] not in ('.', char):
+                    return False
+        return True
+
+
+    def place_word(word, slot, current_grid):
+        direction, row, col, length = slot
+        new_grid = [r[:] for r in current_grid]
+        if direction == 'across':
+            for k, char in enumerate(word):
+                new_grid[row][col + k] = char
+        else:
+            for k, char in enumerate(word):
+                new_grid[row + k][col] = char
+        return new_grid
+
+
+    def backtrack(grid, slots, words, used):
+        if not slots:
+            return grid
+        slot = slots[0]
+        for i, word in enumerate(words):
+            if not used[i] and can_place(word, slot, grid):
+                used[i] = True
+                new_grid = place_word(word, slot, grid)
+                result = backtrack(new_grid, slots[1:], words, used)
+                if result:
+                    return result
+                used[i] = False
+        return None
+
+
+    used = [False] * len(words)
+    solution = backtrack(grid, slots, words, used)
+    if solution:
+        return '\n'.join(''.join(row) for row in solution)
+    return None
+
+
+if __name__ == "__main__":
+    print("Enter the crossword grid (# for blocks, . for empty spaces, one row per line). Type 'done' when finished:")
+    grid_lines = []
+    while True:
+        line = input()
+        if line == "done":
+            break
+        grid_lines.append(line)
+    grid = '\n'.join(grid_lines)
+    words = input("Enter words to place (comma-separated): ").split(",")
+    solution = solve_crossword(grid, words)
+    if solution:
+        print("\nCrossword Solution:")
+        print(solution)
+    else:
+        print("\nNo solution found.")
+
+
+
+
+OUTPUT:
+Enter the crossword grid (# for blocks, . for empty spaces, one row per line). Type 'done' when finished:
+##
+..
+done
+Enter words to place (comma-separated): HI,HE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SINGLE MENU DRIVEN 
+import itertools
+import matplotlib.pyplot as plt
+import networkx as nx
+
+
+def solve_cryptarithmetic(words, result):
+    unique_chars = set("".join(words) + result)
+    if len(unique_chars) > 10:
+        print("Too many unique letters, cannot solve.")
+        return None
+    unique_chars = list(unique_chars)
+    
+    for perm in itertools.permutations(range(10), len(unique_chars)):
+        mapping = dict(zip(unique_chars, perm))
+        if any(mapping[word[0]] == 0 for word in words + [result]):
+            continue
+        words_nums = [sum(mapping[char] * (10 ** i) for i, char in enumerate(word[::-1])) for word in words]
+        result_num = sum(mapping[char] * (10 ** i) for i, char in enumerate(result[::-1]))
+        if sum(words_nums) == result_num:
+            print("\nSolution Found!")
+            for char, num in mapping.items():
+                print(f"{char} = {num}")
+            return mapping
+    print("\nNo solution found.")
+    return None
+
+
+def solve_map_coloring(graph, colors):
+    color_map = {}
+    def is_valid(node, color):
+        return all(color_map.get(neigh) != color for neigh in graph[node])
+    def backtrack(node_index):
+        if node_index == len(graph):
+            return True
+        node = list(graph.keys())[node_index]
+        for color in colors:
+            if is_valid(node, color):
+                color_map[node] = color
+                if backtrack(node_index + 1):
+                    return True
+                del color_map[node]
+        return False
+    if backtrack(0):
+        return color_map
+    return None
+
+
+def draw_colored_map(graph, color_map):
+    G = nx.Graph()
+    for node in graph:
+        G.add_node(node)
+    for node, neighbors in graph.items():
+        for neighbor in neighbors:
+            G.add_edge(node, neighbor)
+    
+    pos = nx.spring_layout(G)
+    node_colors = [color_map[node].strip().lower() for node in G.nodes()]
+    
+    plt.figure(figsize=(6, 6))
+    nx.draw(G, pos, 
+            node_color=node_colors, 
+            with_labels=True, 
+            node_size=1000, 
+            font_size=12, 
+            font_weight='bold')
+    plt.title("Map Coloring Solution")
+    plt.show()
+
+
+def solve_crossword(grid_str, words):
+    grid = [list(row.strip()) for row in grid_str.split('\n') if row.strip()]
+    height, width = len(grid), len(grid[0]) if grid else 0
+
+
+    # Find slots (horizontal and vertical)
+    slots = []
+    for i in range(height):
+        j = 0
+        while j < width:
+            if grid[i][j] == '.':
+                start = j
+                while j < width and grid[i][j] == '.':
+                    j += 1
+                if j - start > 1:
+                    slots.append(('across', i, start, j - start))
+            else:
+                j += 1
+    for j in range(width):
+        i = 0
+        while i < height:
+            if grid[i][j] == '.':
+                start = i
+                while i < height and grid[i][j] == '.':
+                    i += 1
+                if i - start > 1:
+                    slots.append(('down', start, j, i - start))
+            else:
+                i += 1
+
+
+    def can_place(word, slot, current_grid):
+        direction, row, col, length = slot
+        if len(word) != length:
+            return False
+        if direction == 'across':
+            for k, char in enumerate(word):
+                if current_grid[row][col + k] not in ('.', char):
+                    return False
+        else:  # down
+            for k, char in enumerate(word):
+                if current_grid[row + k][col] not in ('.', char):
+                    return False
+        return True
+
+
+    def place_word(word, slot, current_grid):
+        direction, row, col, length = slot
+        new_grid = [r[:] for r in current_grid]
+        if direction == 'across':
+            for k, char in enumerate(word):
+                new_grid[row][col + k] = char
+        else:  # down
+            for k, char in enumerate(word):
+                new_grid[row + k][col] = char
+        return new_grid
+
+
+    def backtrack(grid, slots, words, used):
+        if not slots:
+            return grid
+        slot = slots[0]
+        for i, word in enumerate(words):
+            if not used[i] and can_place(word, slot, grid):
+                used[i] = True
+                new_grid = place_word(word, slot, grid)
+                result = backtrack(new_grid, slots[1:], words, used)
+                if result:
+                    return result
+                used[i] = False
+        return None
+
+
+    used = [False] * len(words)
+    solution = backtrack(grid, slots, words, used)
+    if solution:
+        return '\n'.join(''.join(row) for row in solution)
+    return None
+
+
+def main():
+    while True:
+        print("\nConstraint Satisfaction Problem Solver")
+        print("1. Solve Cryptarithmetic Puzzle")
+        print("2. Solve Map Coloring Problem")
+        print("3. Solve Crossword Puzzle")
+        print("4. Exit")
+        choice = input("Enter your choice: ")
+        if choice == '1':
+            words = input("Enter words (comma-separated): ").split(",")
+            result = input("Enter result word: ")
+            solve_cryptarithmetic(words, result)
+        elif choice == '2':
+            num_regions = int(input("Enter number of regions: "))
+            graph = {}
+            print("Enter adjacency list (format: region neighbors1 neighbors2 ...). Type 'done' to finish:")
+            while True:
+                line = input()
+                if line == "done":
+                    break
+                parts = line.split()
+                graph[parts[0]] = parts[1:]
+            colors = input("Enter colors available (comma-separated): ").split(",")
+            solution = solve_map_coloring(graph, colors)
+            if solution:
+                print("\nMap Coloring Solution:")
+                for region, color in solution.items():
+                    print(f"{region} -> {color}")
+                draw_colored_map(graph, solution)
+            else:
+                print("\nNo solution found.")
+        elif choice == '3':
+            print("Enter the crossword grid (# for blocks, . for empty spaces, one row per line). Type 'done' when finished:")
+            grid_lines = []
+            while True:
+                line = input()
+                if line == "done":
+                    break
+                grid_lines.append(line)
+            grid = '\n'.join(grid_lines)
+            words = input("Enter words to place (comma-separated): ").split(",")
+            solution = solve_crossword(grid, words)
+            if solution:
+                print("\nCrossword Solution:")
+                print(solution)
+            else:
+                print("\nNo solution found.")
+        elif choice == '4':
+            print("Exiting program...")
+            break
+        else:
+            print("Invalid choice. Try again.")
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+EXAMPLE OUTPUT:
+Constraint Satisfaction Problem Solver
+1. Solve Cryptarithmetic Puzzle
+2. Solve Map Coloring Problem
+3. Solve Crossword Puzzle
+4. Exit
+Enter your choice: 1 
+Enter words (comma-separated): SEND, MORE
+Enter result word: MONEY
+
+
+Solution Found!
+R = 4
+E = 1
+M = 9
+D = 2
+Y = 3
+O = 5
+S = 6
+N = 7
+  = 8
+
+
+Constraint Satisfaction Problem Solver
+1. Solve Cryptarithmetic Puzzle
+2. Solve Map Coloring Problem
+3. Solve Crossword Puzzle
+4. Exit
+Enter your choice: 2
+Enter number of regions: 4
+Enter adjacency list (format: region neighbors1 neighbors2 ...). Type 'done' to finish:
+A B C
+B A C D
+C A B D
+D B C
+done
+Enter colors available (comma-separated): Yellow, Purple, Green
+
+
+Map Coloring Solution:
+A -> Yellow
+B ->  Purple
+C ->  Green
+D -> Yellow
+
+
+
+
+Constraint Satisfaction Problem Solver
+1. Solve Cryptarithmetic Puzzle
+2. Solve Map Coloring Problem
+3. Solve Crossword Puzzle
+4. Exit
+Enter your choice: 3
+Enter the crossword grid (# for blocks, . for empty spaces, one row per line). Type 'done' when finished:
+##
+..
+done
+Enter words to place (comma-separated): HI
+
+
+Crossword Solution:
+##
+HI
+
+
+
+
+
+
+
+
+7. Implement the Minimax algorithm to solve the Tic Tac Toe problem
+
+
+
+
+class TicTacToe:
+    def __init__(self):
+        self.board = [' ' for _ in range(9)]  # 3x3 board represented as 1D array
+        self.current_winner = None
+
+
+    def print_board(self):
+        for row in [self.board[i*3:(i+1)*3] for i in range(3)]:
+            print('| ' + ' | '.join(row) + ' |')
+
+
+    @staticmethod
+    def print_board_nums():
+        # Shows what number corresponds to what spot
+        number_board = [[str(i) for i in range(j*3, (j+1)*3)] for j in range(3)]
+        for row in number_board:
+            print('| ' + ' | '.join(row) + ' |')
+
+
+    def available_moves(self):
+        return [i for i, spot in enumerate(self.board) if spot == ' ']
+
+
+    def empty_squares(self):
+        return ' ' in self.board
+
+
+    def make_move(self, square, letter):
+        if self.board[square] == ' ':
+            self.board[square] = letter
+            if self.winner(square, letter):
+                self.current_winner = letter
+            return True
+        return False
+
+
+    def winner(self, square, letter):
+        # Check row
+        row_ind = square // 3
+        row = self.board[row_ind*3:(row_ind + 1)*3]
+        if all([spot == letter for spot in row]):
+            return True
+
+
+        # Check column
+        col_ind = square % 3
+        column = [self.board[col_ind+i*3] for i in range(3)]
+        if all([spot == letter for spot in column]):
+            return True
+
+
+        # Check diagonal
+        if square % 2 == 0:
+            diagonal1 = [self.board[i] for i in [0, 4, 8]]
+            if all([spot == letter for spot in diagonal1]):
+                return True
+            diagonal2 = [self.board[i] for i in [2, 4, 6]]
+            if all([spot == letter for spot in diagonal2]):
+                return True
+
+
+        return False
+
+
+def minimax(game, maximizing):
+    # Base cases - terminal states
+    if game.current_winner:
+        if maximizing:
+            return {'position': None, 'score': -1}  # X wins
+        else:
+            return {'position': None, 'score': 1}   # O wins
+    elif not game.empty_squares():
+        return {'position': None, 'score': 0}   # Tie
+
+
+    if maximizing:  # Maximizing player (X)
+        best = {'position': None, 'score': -float('inf')}
+        letter = 'X'
+    else:  # Minimizing player (O)
+        best = {'position': None, 'score': float('inf')}
+        letter = 'O'
+
+
+    for possible_move in game.available_moves():
+        # Make a move
+        game.make_move(possible_move, letter)
+        
+        # Recursively get the score
+        sim_score = minimax(game, not maximizing)
+        
+        # Undo the move
+        game.board[possible_move] = ' '
+        game.current_winner = None
+        
+        sim_score['position'] = possible_move
+
+
+        if maximizing:
+            if sim_score['score'] > best['score']:
+                best = sim_score
+        else:
+            if sim_score['score'] < best['score']:
+                best = sim_score
+
+
+    return best
+
+
+def play_game():
+    game = TicTacToe()
+    print("Welcome to Tic Tac Toe!")
+    print("Positions are numbered as follows:")
+    game.print_board_nums()
+
+
+    while game.empty_squares():
+        # Human player (O)
+        valid_move = False
+        while not valid_move:
+            try:
+                square = int(input("Enter your move (0-8): "))
+                valid_move = game.make_move(square, 'O')
+                if not valid_move:
+                    print("Invalid move. Try again.")
+            except ValueError:
+                print("Please enter a number between 0 and 8.")
+
+
+        game.print_board()
+        if game.current_winner:
+            print("O wins!")
+            break
+        
+        if not game.empty_squares():
+            print("It's a tie!")
+            break
+
+
+        # AI player (X)
+        print("AI is thinking...")
+        ai_move = minimax(game, True)['position']
+        game.make_move(ai_move, 'X')
+        print(f"AI chose position {ai_move}")
+        game.print_board()
+        
+        if game.current_winner:
+            print("X wins!")
+            break
+
+
+if __name__ == '__main__':
+    play_game()
+
+
+
+
+
+
+
+
+
+
+
+
+—------------------------------------------------------------------------------------------------------------------
+“I HAVE NO LIMITATIONS”
+—------------------------------------------------------------------------------------
+
+
+
+
+
+
+Coded by Aryan and Shriyog
