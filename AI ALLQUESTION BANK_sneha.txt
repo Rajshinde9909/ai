@@ -1,0 +1,900 @@
+1. Implement Non-AI Techniques for Tic-Tac-Toe the problem. 
+
+
+# Simplified Text-Based Tic Tac Toe (2-player turn-based)
+def print_board(board):
+    print("\n".join([" | ".join(row) for row in board]))
+    print()
+
+def check_winner(board):
+    # Rows, Columns, Diagonals
+    lines = board + [list(col) for col in zip(*board)] + [
+        [board[i][i] for i in range(3)],
+        [board[i][2 - i] for i in range(3)]
+    ]
+    for line in lines:
+        if line.count(line[0]) == 3 and line[0] != " ":
+            return line[0]
+    return None
+
+
+def is_draw(board):
+    return all(cell != " " for row in board for cell in row)
+
+def play_tic_tac_toe():
+    board = [[" "]*3 for _ in range(3)]
+    current = "X"
+    while True:
+        print_board(board)
+        move = input(f"Player {current}, enter move (row col): ")
+        try:
+            row, col = map(int, move.strip().split())
+        except ValueError:
+            print("Invalid input. Please enter row and column like '1 2'")
+            continue
+        if not (0 <= row <= 2 and 0 <= col <= 2) or board[row][col] != " ":
+            print("Invalid move. Try again.")
+            continue
+        board[row][col] = current
+        winner = check_winner(board)
+        if winner:
+            print_board(board)
+            print(f"Player {winner} wins!")
+            break
+        elif is_draw(board):
+            print_board(board)
+            print("It's a draw!")
+            break
+        current = "O" if current == "X" else "X"
+
+
+# Run the game
+play_tic_tac_toe()
+#input: 2 0(enter)1 2...
+
+
+
+2. Implement Non-AI Techniques for N-Queens the problem. 
+
+import itertools
+
+def print_board(board):
+    """Pretty-prints the board."""
+    for row in board:
+        print(" ".join('Q' if c else '.' for c in row))
+    print()
+
+def is_safe_manual(manual_placements, row, col):
+    """Validates if placing a queen is safe against all previous placements."""
+    for r, c in manual_placements.items():
+        if c == col or abs(r - row) == abs(c - col):
+            return False
+    return True
+
+def is_valid_partial(perm, manual_placements):
+    """Validates full permutation against diagonals and manual placements."""
+    for row, col in manual_placements.items():
+        if perm[row] != col:
+            return False
+    for i in range(len(perm)):
+        for j in range(i):
+            if abs(perm[i] - perm[j]) == abs(i - j):
+                return False
+    return True
+
+def generate_board_from_perm(perm, n):
+    """Creates board from a valid permutation."""
+    board = [[0]*n for _ in range(n)]
+    for r, c in enumerate(perm):
+        board[r][c] = 1
+    return board
+
+def solve_n_queens_permutation(n, manual_placements):
+    """Solves using permutations, respecting manual queen positions."""
+    for perm in itertools.permutations(range(n)):
+        if is_valid_partial(perm, manual_placements):
+            return generate_board_from_perm(perm, n)
+    return None
+
+# === Interactive Section ===
+
+while True:
+    try:
+        n = int(input("Enter board size N (N ≥ 1): "))
+        if n > 0:
+            break
+        print("Please enter a positive integer.")
+    except ValueError:
+        print("Invalid input.")
+
+manual_placements = {}
+temp_board = [[0]*n for _ in range(n)]
+
+# User selects how many queens to place manually
+while True:
+    try:
+        num_manual = int(input(f"How many queens do you want to place manually? (0 to {n}): "))
+        if 0 <= num_manual <= n:
+            break
+        print("Enter between 0 and", n)
+    except ValueError:
+        print("Invalid input.")
+
+# User places queens on the board
+for i in range(num_manual):
+    while True:
+        try:
+            r, c = map(int, input(f"Enter position for Queen {i+1} (row col): ").split())
+            if not (0 <= r < n and 0 <= c < n):
+                print(f"Row and column must be between 0 and {n-1}.")
+                continue
+            if r in manual_placements:
+                print(f"A queen is already placed in row {r}. Each row can only have one queen.")
+                continue
+            if not is_safe_manual(manual_placements, r, c):
+                print("This position conflicts with an already placed queen (column or diagonal conflict). Try again.")
+                continue
+            manual_placements[r] = c
+            temp_board[r][c] = 1
+            print(f"Board after placing Queen {i+1}:")
+            print_board(temp_board)
+            break
+        except ValueError:
+            print("Enter two integers separated by space.")
+
+solution = solve_n_queens_permutation(n, manual_placements)
+
+if solution:
+    print("Final Solution:")
+    print_board(solution)
+else:
+    print("No solution found that satisfies the manual placements.")
+
+
+
+#input:4,4,::::0 1,1 3,2 0,3 )
+
+
+
+
+
+
+3. Implement Non-AI Techniques for Magic Square the problem. 
+
+
+
+def generate_magic_square(n):
+    if n % 2 == 0:
+        print("Only odd numbers allowed for this method (Siamese method).")
+        return
+    
+    magic_square = [[0]*n for _ in range(n)]
+    
+    num = 1
+    i, j = 0, n // 2  # Start from middle of first row
+    
+    while num <= n**2:
+        magic_square[i][j] = num
+        num += 1
+        new_i, new_j = (i-1) % n, (j+1) % n
+        
+        if magic_square[new_i][new_j]:
+            i = (i+1) % n
+        else:
+            i, j = new_i, new_j
+
+    # Display neatly
+    print(f"\nMagic Square of size {n}x{n}:\n")
+    for row in magic_square:
+        print("  ".join(f"{val:2d}" for val in row))
+    
+    magic_constant = n * (n**2 + 1) // 2
+    print(f"\nMagic Constant: {magic_constant}")
+
+try:
+    user_n = int(input("Enter an odd number (n) for magic square size: "))
+    generate_magic_square(user_n)
+except ValueError:
+    print("Invalid input. Please enter a valid integer.")
+#INPUT: 3
+
+
+
+
+4. Implement the Water Jug problem using Depth First Search 
+
+
+def dfs(a, b, cap_a, cap_b, target, visited, path, target_in):
+    if (a, b) in visited:
+        return False
+    visited.add((a, b))
+    path.append((a, b))
+
+    # Goal condition based on user's target jug
+    if (target_in == 'A' and a == target) or \
+       (target_in == 'B' and b == target) or \
+       (target_in == 'ANY' and (a == target or b == target)):
+        return True
+
+    # All possible operations
+    moves = [
+        (cap_a, b),  # Fill A
+        (a, cap_b),  # Fill B
+        (0, b),      # Empty A
+        (a, 0),      # Empty B
+        (a - min(a, cap_b - b), b + min(a, cap_b - b)),  # Pour A -> B
+        (a + min(b, cap_a - a), b - min(b, cap_a - a)),  # Pour B -> A
+    ]
+
+    for new_a, new_b in moves:
+        if dfs(new_a, new_b, cap_a, cap_b, target, visited, path, target_in):
+            return True
+
+    path.pop()
+    return False
+
+
+def water_jug_dfs_custom(cap_a, cap_b, target, target_in):
+    visited = set()
+    path = []
+    if dfs(0, 0, cap_a, cap_b, target, visited, path, target_in):
+        return path
+    return None
+
+
+# Main Input Handling with clear error messaging
+def get_input():
+    while True:
+        try:
+            a = int(input("Enter Jug A capacity: "))
+            if a <= 0:
+                print("Capacity must be a positive number.")
+                continue
+            break
+        except ValueError:
+            print("Invalid input. Please enter an integer for Jug A.")
+
+    while True:
+        try:
+            b = int(input("Enter Jug B capacity: "))
+            if b <= 0:
+                print("Capacity must be a positive number.")
+                continue
+            break
+        except ValueError:
+            print("Invalid input. Please enter an integer for Jug B.")
+
+    while True:
+        try:
+            target = int(input("Enter target amount (in A or B): "))
+            if target <= 0:
+                print("Target must be a positive number.")
+                continue
+            break
+        except ValueError:
+            print("Invalid input. Please enter an integer for the target.")
+
+    while True:
+        target_in = input("Enter target jug [A, B, ANY]: ").strip().upper()
+        if target_in not in ['A', 'B', 'ANY']:
+            print("Invalid choice. Please enter A, B, or ANY.")
+            continue
+
+        # Validate target fits in the selected jug
+        if (target_in == 'A' and target > a) or \
+           (target_in == 'B' and target > b) or \
+           (target_in == 'ANY' and target > max(a, b)):
+            print("Target too large for selected jug. Try again.")
+            continue
+        break
+
+    return a, b, target, target_in
+
+
+# Run the fixed input and DFS logic
+a, b, target, target_in = get_input()
+result = water_jug_dfs_custom(a, b, target, target_in)
+
+if result:
+    print("\n Steps to reach target:")
+    for state in result:
+        print(state)
+else:
+    print("No solution found.")
+##IPUT:4,3,2,A
+
+
+
+
+5. Implement the Water Jug problem using Breadth First Search 
+ 
+
+def dfs(a, b, cap_a, cap_b, target, visited, path):
+    if (a, b) in visited:
+        return False
+    visited.add((a, b))
+    path.append((a, b))
+
+    if a == target or b == target:
+        return True
+
+    # All possible moves
+    moves = [
+        (cap_a, b),           # Fill Jug A
+        (a, cap_b),           # Fill Jug B
+        (0, b),               # Empty Jug A
+        (a, 0),               # Empty Jug B
+        (a - min(a, cap_b - b), b + min(a, cap_b - b)),  # Pour A -> B
+        (a + min(b, cap_a - a), b - min(b, cap_a - a)),  # Pour B -> A
+    ]
+
+    for new_a, new_b in moves:
+        if dfs(new_a, new_b, cap_a, cap_b, target, visited, path):
+            return True
+
+    path.pop()
+    return False
+
+def water_jug_dfs_simple(cap_a, cap_b, target):
+    visited = set()
+    path = []
+    if dfs(0, 0, cap_a, cap_b, target, visited, path):
+        return path
+    return None
+
+# Main
+a = int(input("Enter Jug A capacity: "))
+b = int(input("Enter Jug B capacity: "))
+target = int(input("Enter target amount (in A or B): "))
+
+result = water_jug_dfs_simple(a, b, target)
+
+if result:
+    print("\nSteps to reach target:")
+    for state in result:
+        print(state)
+else:
+    print("No solution found.")
+##INPUT 5,2,3,A
+
+
+6. Implement the Hill Climbing technique to solve the 8 puzzle problem. 
+
+
+import copy
+
+# Get user input for start state
+def get_input_state(name):
+    print(f"Enter the {name} state (use 0 for the blank tile):")
+    state = []
+    for i in range(3):
+        row = list(map(int, input(f"Row {i+1} (space-separated): ").split()))
+        if len(row) != 3:
+            raise ValueError("Each row must contain exactly 3 numbers.")
+        state.append(row)
+    return state
+
+# Heuristic: Count of misplaced tiles (excluding 0)
+def heuristic(state, goal):
+    count = 0
+    for i in range(3):
+        for j in range(3):
+            if state[i][j] != 0 and state[i][j] != goal[i][j]:
+                count += 1
+    return count
+
+# Get possible neighbors by moving 0
+def get_neighbors(state):
+    neighbors = []
+    x, y = [(ix, iy) for ix, row in enumerate(state) 
+            for iy, i in enumerate(row) if i == 0][0]
+    
+    moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
+    for dx, dy in moves:
+        nx, ny = x + dx, y + dy
+        if 0 <= nx < 3 and 0 <= ny < 3:
+            new_state = copy.deepcopy(state)
+            new_state[x][y], new_state[nx][ny] = new_state[nx][ny], new_state[x][y]
+            neighbors.append(new_state)
+    return neighbors
+
+# Hill Climbing Search
+def hill_climbing(start, goal):
+    current = start
+    step = 0
+    while True:
+        print(f"\nStep {step} - Current State (h={heuristic(current, goal)}):")
+        for row in current:
+            print(row)
+
+        h = heuristic(current, goal)
+        neighbors = get_neighbors(current)
+        next_state = min(neighbors, key=lambda x: heuristic(x, goal))
+        next_h = heuristic(next_state, goal)
+
+        if next_h >= h:
+            print("\nNo better neighbor found. Stopping (local minimum or goal).")
+            return current
+
+        current = next_state
+        step += 1
+
+# Run the program
+if __name__ == "__main__":
+    start = get_input_state("START")
+    goal = get_input_state("GOAL")
+    result = hill_climbing(start, goal)
+
+    print("\nFinal State (may be local minimum or goal):")
+    for row in result:
+        print(row)
+
+##INPUT: 1 2 3 (ENTER) 0 4 6 (ENTER) 7 5 8(ENTER) 1 2 3 (ENTER) 4 5 6(ENTER) 7 8 0 (ENTER)
+
+ 
+7. Implement 8 Puzzle  problem using Best First Search Algorithm 
+
+# Heuristic: Count of misplaced tiles (excluding 0)
+def heuristic(state, goal):
+    return sum(1 for i in range(9) if state[i] != goal[i] and state[i] != 0)
+
+# Find neighbors (possible moves)
+def get_neighbors(state):
+    neighbors = []
+    idx = state.index(0)  # Find the blank position
+    moves = []
+
+    # Possible move directions based on blank position
+    if idx not in [0, 1, 2]:  # Up
+        moves.append(idx - 3)
+    if idx not in [6, 7, 8]:  # Down
+        moves.append(idx + 3)
+    if idx not in [0, 3, 6]:  # Left
+        moves.append(idx - 1)
+    if idx not in [2, 5, 8]:  # Right
+        moves.append(idx + 1)
+
+    # Generate neighbors by swapping
+    for move in moves:
+        new_state = state[:]
+        new_state[idx], new_state[move] = new_state[move], new_state[idx]
+        neighbors.append(new_state)
+
+    return neighbors
+
+# Best First Search without heapq
+def best_first_search(start, goal):
+    visited = set()
+    queue = [(start, [start])]  # (state, path)
+
+    while queue:
+        # Sort the queue based on heuristic value
+        queue.sort(key=lambda x: heuristic(x[0], goal))
+        current, path = queue.pop(0)
+
+        if current == goal:
+            return path
+
+        visited.add(tuple(current))
+
+        for neighbor in get_neighbors(current):
+            if tuple(neighbor) not in visited:
+                queue.append((neighbor, path + [neighbor]))
+
+    return None
+
+# Input helper
+def get_state_input(prompt):
+    print(f"\nEnter the {prompt} state (use 0 for the blank):")
+    state = []
+    while len(state) < 9:
+        try:
+            val = int(input(f"Enter value for position {len(state)+1}: "))
+            if 0 <= val <= 8 and val not in state:
+                state.append(val)
+            else:
+                print("Invalid or duplicate number. Enter values from 0 to 8 only, without repetition.")
+        except ValueError:
+            print("Please enter a valid number.")
+    return state
+
+# Main
+start_state = get_state_input("start")
+goal_state = get_state_input("goal")
+
+solution = best_first_search(start_state, goal_state)
+
+# Print results
+if solution:
+    print("\nSolution steps:")
+    for step, state in enumerate(solution):
+        print(f"\nStep {step}:")
+        print(state[0:3])
+        print(state[3:6])
+        print(state[6:9])
+else:
+    print("No solution found.")
+
+#INPUT: 1 2 3 0 4 6 7 5 8 , 1 2 3 4 5 6 7 8 0 
+
+
+
+
+8. Implement Cities Distance (shortest path) problem using Best First Search Algorithm 
+
+# Heuristic function (distance to goal city)
+def heuristic(city, goal, city_positions):
+    return abs(city_positions[city] - city_positions[goal])
+
+# Find neighbors of a city (cities directly connected to it)
+def get_neighbors(city, graph):
+    return graph.get(city, [])
+
+# Best First Search Algorithm without heapq
+def best_first_search(start, goal, graph, city_positions):
+    visited = set()
+    queue = [(heuristic(start, goal, city_positions), start, [start])]  # start with the initial city
+    
+    while queue:
+        # Sort the queue based on the heuristic value (simulating priority queue behavior)
+        queue.sort(key=lambda x: x[0])
+        
+        # Pop the city with the lowest heuristic value
+        _, current, path = queue.pop(0)
+
+        # If we reached the goal, return the path
+        if current == goal:
+            return path
+
+        visited.add(current)
+
+        # Explore neighbors
+        for neighbor in get_neighbors(current, graph):
+            if neighbor not in visited:
+                queue.append((heuristic(neighbor, goal, city_positions), neighbor, path + [neighbor]))
+
+    return None
+
+# Take user input for graph and heuristic
+def get_user_input():
+    cities = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+    
+    # Define the graph with cities and their connections (edges)
+    graph = {
+        'A': ['B', 'C'],
+        'B': ['A', 'D', 'E'],
+        'C': ['A', 'F'],
+        'D': ['B', 'G'],
+        'E': ['B', 'H'],
+        'F': ['C', 'I'],
+        'G': ['D', 'J'],
+        'H': ['E'],
+        'I': ['F'],
+        'J': ['G']
+    }
+    
+    # Sample heuristic values for cities (position of each city)
+    city_positions = {
+        'A': 0,  # Position of city A
+        'B': 1,  # Position of city B
+        'C': 2,  # Position of city C
+        'D': 3,  # Position of city D
+        'E': 4,  # Position of city E
+        'F': 5,  # Position of city F
+        'G': 6,  # Position of city G
+        'H': 7,  # Position of city H
+        'I': 8,  # Position of city I
+        'J': 9   # Position of city J
+    }
+
+    return cities, graph, city_positions
+
+# Main execution
+cities, graph, city_positions = get_user_input()
+
+# Start and goal cities
+start_city = input("Enter the start house: ")
+goal_city = input("Enter the goal house: ")
+
+# Run the Best First Search algorithm
+path = best_first_search(start_city, goal_city, graph, city_positions)
+
+# Display the result
+if path:
+    print(f"Path found: {' -> '.join(path)}")
+else:
+    print("No path found.")
+#User Input: A, J
+
+
+
+9. Implement 8 Puzzle problem using A* Algorithm 
+
+
+# Heuristic: Manhattan Distance
+def heuristic(state, goal):
+    dist = 0
+    for i in range(1, 9):
+        xi, yi = divmod(state.index(i), 3)
+        xg, yg = divmod(goal.index(i), 3)
+        dist += abs(xi - xg) + abs(yi - yg)
+    return dist
+
+# Get all valid neighbor states
+def get_neighbors(state):
+    neighbors = []
+    idx = state.index(0)
+    moves = []
+
+    if idx not in [0, 1, 2]: moves.append(idx - 3)  # Up
+    if idx not in [6, 7, 8]: moves.append(idx + 3)  # Down
+    if idx not in [0, 3, 6]: moves.append(idx - 1)  # Left
+    if idx not in [2, 5, 8]: moves.append(idx + 1)  # Right
+
+    for move in moves:
+        new_state = state[:]
+        new_state[idx], new_state[move] = new_state[move], new_state[idx]
+        neighbors.append(new_state)
+    return neighbors
+
+# A* Search algorithm
+def a_star(start, goal):
+    open_list = [(start, [start])]
+    visited = set()
+
+    while open_list:
+        # Sort based on f(n) = g(n) + h(n)
+        open_list.sort(key=lambda x: len(x[1]) + heuristic(x[0], goal))
+        current, path = open_list.pop(0)
+
+        if current == goal:
+            return path
+
+        visited.add(tuple(current))
+
+        for neighbor in get_neighbors(current):
+            if tuple(neighbor) not in visited:
+                open_list.append((neighbor, path + [neighbor]))
+
+    return None
+
+# Get 3x3 matrix input from user
+def get_matrix_input(prompt):
+    print(f"\nEnter {prompt} matrix (row-wise, use 0 for blank):")
+    matrix = []
+    for i in range(9):
+        val = int(input(f"Enter position {i+1}: "))
+        matrix.append(val)
+    return matrix
+
+# Main function
+start = get_matrix_input("START")
+goal = get_matrix_input("GOAL")
+
+solution = a_star(start, goal)
+
+# Show steps
+if solution:
+    for step, state in enumerate(solution):
+        print(f"\nStep {step}:")
+        print(state[0:3])
+        print(state[3:6])
+        print(state[6:9])
+else:
+    print("No solution found.")
+
+#input: 2 8 3 1 6 4 7 0 5,goal= 1 2 3 8 0 4 7 6 5
+
+
+10. Implement Cities Distance (shortest path) problem using A* Algorithm 
+
+
+# A* Algorithm for City Distance Problem
+
+# Example map of cities with distances (graph)
+city_graph = {
+    'A': {'B': 6, 'F': 3},
+    'B': {'A': 6, 'C': 3, 'D': 2},
+    'C': {'B': 3, 'D': 1, 'E': 5},
+    'D': {'B': 2, 'C': 1, 'E': 8},
+    'E': {'C': 5, 'D': 8, 'G': 3},
+    'F': {'A': 3, 'G': 7},
+    'G': {'E': 3, 'F': 7}
+}
+
+# Straight-line heuristic distance to goal (used in A*)
+heuristic = {
+    'A': 10,
+    'B': 8,
+    'C': 5,
+    'D': 7,
+    'E': 3,
+    'F': 6,
+    'G': 0  # goal city
+}
+
+def a_star_search(start, goal):
+    open_list = [(start, 0)]  # (city, cost_so_far)
+    visited = set()
+    parent = {start: None}
+    cost_so_far = {start: 0}
+
+    while open_list:
+        # Sort by f(n) = g(n) + h(n)
+        open_list.sort(key=lambda x: cost_so_far[x[0]] + heuristic[x[0]])
+        current, current_cost = open_list.pop(0)
+
+        if current == goal:
+            # Reconstruct path
+            path = []
+            while current:
+                path.append(current)
+                current = parent[current]
+            return path[::-1], cost_so_far[goal]
+
+        visited.add(current)
+
+        for neighbor, dist in city_graph.get(current, {}).items():
+            new_cost = cost_so_far[current] + dist
+            if neighbor not in visited or new_cost < cost_so_far.get(neighbor, float('inf')):
+                cost_so_far[neighbor] = new_cost
+                parent[neighbor] = current
+                open_list.append((neighbor, new_cost))
+
+    return None, None
+
+# User input
+print("Available cities:", list(city_graph.keys()))
+start_city = input("Enter start city: ").strip().upper()
+goal_city = input("Enter goal city: ").strip().upper()
+
+# Run A*
+path, total_cost = a_star_search(start_city, goal_city)
+
+# Output
+if path:
+    print("\nShortest path:", ' -> '.join(path))
+    print("Total cost:", total_cost)
+else:
+    print("No path found.")
+#input A J
+
+11. Implement the Minimax algorithm to solve the Tic Tac Toe problem 
+
+
+
+class TicTacToe:
+    def __init__(self):
+            self.board = [' ' for _ in range(9)]  # 3x3 board represented as 1D array
+            self.current_winner = None
+ 
+    def print_board(self):
+            for row in [self.board[i*3:(i+1)*3] for i in range(3)]:
+                print('| ' + ' | '.join(row) + ' |')
+ 
+    @staticmethod
+    def print_board_nums():
+            # Shows what number corresponds to what spot
+            number_board = [[str(i) for i in range(j*3, (j+1)*3)] for j in range(3)]
+            for row in number_board:
+                print('| ' + ' | '.join(row) + ' |')
+ 
+    def available_moves(self):
+            return [i for i, spot in enumerate(self.board) if spot == ' ']
+ 
+    def empty_squares(self):
+            return ' ' in self.board
+ 
+    def make_move(self, square, letter):
+            if self.board[square] == ' ':
+                self.board[square] = letter
+                if self.winner(square, letter):
+                    self.current_winner = letter
+                return True
+            return False
+ 
+    def winner(self, square, letter):
+            # Check row
+            row_ind = square // 3
+            row = self.board[row_ind*3:(row_ind + 1)*3]
+            if all([spot == letter for spot in row]):
+                return True
+ 
+            # Check column
+            col_ind = square % 3
+            column = [self.board[col_ind+i*3] for i in range(3)]
+            if all([spot == letter for spot in column]):
+                return True
+ 
+            # Check diagonal
+            if square % 2 == 0:
+                diagonal1 = [self.board[i] for i in [0, 4, 8]]
+                if all([spot == letter for spot in diagonal1]):
+                    return True
+                diagonal2 = [self.board[i] for i in [2, 4, 6]]
+                if all([spot == letter for spot in diagonal2]):
+                    return True
+ 
+            return False
+ 
+def minimax(game, maximizing):
+    # Base cases - terminal states
+    if game.current_winner:
+            if maximizing:
+                return {'position': None, 'score': -1}  # X wins
+            else:
+                return {'position': None, 'score': 1}   # O wins
+    elif not game.empty_squares():
+            return {'position': None, 'score': 0}          # Tie
+ 
+    if maximizing:  # Maximizing player (X)
+            best = {'position': None, 'score': -float('inf')}
+            letter = 'X'
+    else:  # Minimizing player (O)
+            best = {'position': None, 'score': float('inf')}
+            letter = 'O'
+ 
+    for possible_move in game.available_moves():
+            # Make a move
+            game.make_move(possible_move, letter)
+            
+            # Recursively get the score
+            sim_score = minimax(game, not maximizing)
+            
+            # Undo the move
+            game.board[possible_move] = ' '
+            game.current_winner = None
+            
+            sim_score['position'] = possible_move
+ 
+            if maximizing:
+                if sim_score['score'] > best['score']:
+                    best = sim_score
+            else:
+                if sim_score['score'] < best['score']:
+                    best = sim_score
+ 
+    return best
+ 
+def play_game():
+    game = TicTacToe()
+    print("Welcome to Tic Tac Toe!")
+    print("Positions are numbered as follows:")
+    game.print_board_nums()
+   
+    while game.empty_squares():
+            # Human player (O)
+            valid_move = False
+            while not valid_move:
+                square = int(input("Enter your move (0-8): "))
+                valid_move = game.make_move(square, 'O')
+                if not valid_move:
+                    print("Invalid move. Try again.")
+            
+            game.print_board()
+            if game.current_winner:
+                print("O wins!")
+                break
+            
+            if not game.empty_squares():
+                print("It's a tie!")
+                break
+ 
+            # AI player (X)
+            print("AI is thinking...")
+            ai_move = minimax(game, True)['position']
+            game.make_move(ai_move, 'X')
+            print(f"AI chose position {ai_move}")
+            game.print_board()
+            
+            if game.current_winner:
+                print("X wins!")
+                break
+ 
+if __name__ == '__main__':
+    play_game()
+##INPUT: 0,1,2,3...acc
+
+
+
+
